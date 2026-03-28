@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arizona — Extremely Amateur Wildlife Photography</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+<body class="nocam-page">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-title">
+        <span class="title-main">Extremely Amateur</span>
+        <span class="title-sub">Wildlife Photography</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-inner">
+      <p class="nav-label">Locations</p>
+      <a href="../index.html" class="nav-link">Oregon</a>
+      <a href="california.html" class="nav-link">California</a>
+      <a href="arizona.html" class="nav-link nav-link--nocam active">Arizona <span class="nocam-tag">no camera</span></a>
+      <a href="dominican-republic.html" class="nav-link">Dominican Republic</a>
+      <a href="taiwan.html" class="nav-link">Taiwan</a>
+      <a href="peru.html" class="nav-link nav-link--nocam">Peru <span class="nocam-tag">no camera</span></a>
+    </div>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <main class="page-main">
+    <div class="page-hero">
+      <h1 class="page-title">Arizona</h1>
+      <p class="page-subtitle">Sonoran Desert · Sky islands</p>
+    </div>
+
+    <span class="nocam-notice">No camera on this trip — species observed but not photographed</span>
+
+    <div id="app"><div class="loading-state">Loading species...</div></div>
+  </main>
+
+  <div class="modal-overlay" id="sightingModal">
+    <div class="modal-box">
+      <h3>Add unlisted sighting</h3>
+      <p style="font-size:0.8rem;color:#888;margin-bottom:1rem;">For a species not already in the list</p>
+      <input type="text" id="sightingCommon" class="modal-input" placeholder="Common name">
+      <input type="text" id="sightingScientific" class="modal-input" placeholder="Scientific name (optional)" style="margin-top:0.5rem">
+      <select id="sightingClass" class="modal-input" style="margin-top:0.5rem">
+        <option value="bird">Bird</option>
+        <option value="mammal">Mammal</option>
+        <option value="reptile">Reptile</option>
+        <option value="amphibian">Amphibian</option>
+        <option value="insect">Insect</option>
+        <option value="other">Other</option>
+      </select>
+      <input type="text" id="sightingNotes" class="modal-input" placeholder="Notes (optional)" style="margin-top:0.5rem">
+      <div class="modal-actions">
+        <button class="btn btn--ghost" id="sightingCancel">Cancel</button>
+        <button class="btn btn--primary" id="sightingSubmit">Add sighting</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initNoCamPage } from '../js/nocam.js';
+    initNoCamPage('Arizona');
+  </script>
+</body>
+</html>
