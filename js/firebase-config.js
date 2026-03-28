@@ -24,26 +24,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-// ─── imgbb API key ──────────────────────────────────────────────────
 export const IMGBB_API_KEY = "YOUR_IMGBB_API_KEY";
 
-// ─── Upload password ────────────────────────────────────────────────
 export const UPLOAD_PASSWORD = "nostopit";
-
-// ─── Firestore helpers ──────────────────────────────────────────────
 
 export async function fetchSpecies(location) {
   const q = query(
     collection(db, 'species'), 
-    where('location', '==', location)
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
-export async function fetchSightings(location) {
-  const q = query(
-    collection(db, 'sightings'),
     where('location', '==', location)
   );
   const snap = await getDocs(q);

@@ -1,13 +1,11 @@
 import {
   fetchSpecies,
-  fetchSightings,
   updateSpeciesImage,
   addSighting,
   IMGBB_API_KEY,
   UPLOAD_PASSWORD
 } from './firebase-config.js';
 
-// ─── State ───────────────────────────────────────────────────────────
 let currentLocation = '';
 let pendingDocId = null;
 let pendingFile = null;
@@ -15,7 +13,11 @@ let pendingCoords = null;
 let pendingSightingLocation = '';
 let isUnlocked = false;
 
-// ─── EXIF GPS extraction ─────────────────────────────────────────────
+const birdPlates = {
+  'arizona': 'https://i.ibb.co/xKr7n66y/arizonaplate.png',
+  'peru': 'https://i.ibb.co/SDt2jLHj/peru-birds.jpg'
+};
+
 function extractExifCoords(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -99,7 +101,6 @@ function parseExifGPS(view, start, length) {
   } catch { return null; }
 }
 
-// ─── imgbb upload ────────────────────────────────────────────────────
 async function uploadToImgbb(file, onProgress) {
   const formData = new FormData();
   formData.append('image', file);
@@ -130,7 +131,6 @@ async function uploadToImgbb(file, onProgress) {
   });
 }
 
-// ─── Render helpers ──────────────────────────────────────────────────
 function uploadIcon() {
   return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`;
 }
@@ -172,19 +172,49 @@ function renderCard(species) {
 }
 
 function renderSection(title, speciesList, container, showAddSighting = true) {
-  if (speciesList.length === 0 && !showAddSighting) return;
+  const speciesWithPhotos = speciesList.filter(s => s.imageUrl && s.imageUrl.trim() !== "");
+  
+  let numberSpecies = speciesWithPhotos.length;
+  var noCamSightings = false;
+  if (numberSpecies === 0 && !showAddSighting) return;
 
   const block = document.createElement('div');
   block.className = 'section-block';
+  
+  if (title === 'Birds')
+  {
+    if (currentLocation === 'arizona') {
+      noCamSightings = true;
+      numberSpecies = 94;
+    } else if (currentLocation === 'peru') {
+      noCamSightings = true;
+      numberSpecies = 26;
+    } else {
+      noCamSightings = false;
+    }
+  }
 
   block.innerHTML = `
     <div class="section-header">
       <h2 class="section-title">${title}</h2>
-      <span class="section-count">${speciesList.length} species</span>
+      <span class="section-count">${numberSpecies} species</span>
     </div>
   `;
 
-  if (speciesList.length > 0) {
+  if (noCamSightings) {
+    const heroImg = document.createElement('div');
+    heroImg.className = 'special-hero-wrap';
+    heroImg.innerHTML = `
+      <img src="${birdPlates[currentLocation]}" class="hero-image" style="width:100%; border-radius:8px; margin-bottom:1rem; cursor:zoom-in;">
+      <p class="hero-note" style="font-style:italic; color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
+        Note: I didn't have a bird-capable camera during this trip; this compilation represents birds sighted.
+      </p>
+    `;
+    heroImg.querySelector('img').addEventListener('click', () => openLightbox(birdPlates[currentLocation]));
+    block.appendChild(heroImg);
+    showAddSighting = false;
+  } 
+  else if (speciesList.length > 0) {
     const grid = document.createElement('div');
     grid.className = 'species-grid';
     speciesList.forEach(s => grid.appendChild(renderCard(s)));
@@ -198,7 +228,7 @@ function renderSection(title, speciesList, container, showAddSighting = true) {
     row.className = 'add-sighting-row';
     const btn = document.createElement('button');
     btn.className = 'btn-add-sighting';
-    btn.textContent = '+ Add unlisted sighting';
+    btn.textContent = `+ Add ${title} sighting`;
     btn.addEventListener('click', () => openSightingModal(title));
     row.appendChild(btn);
     block.appendChild(row);
@@ -207,42 +237,13 @@ function renderSection(title, speciesList, container, showAddSighting = true) {
   container.appendChild(block);
 }
 
-function renderSightings(sightings, container) {
-  if (sightings.length === 0) return;
-
-  const block = document.createElement('div');
-  block.className = 'section-block';
-  block.innerHTML = `
-    <div class="section-header">
-      <h2 class="section-title">Unlisted sightings</h2>
-      <span class="section-count">${sightings.length} recorded</span>
-    </div>
-    <div class="sightings-card">
-      ${sightings.map(s => `
-        <div class="sighting-item">
-          <div>
-            <div class="sighting-name">${s.commonName}</div>
-            ${s.scientificName ? `<div class="card-scientific">${s.scientificName}</div>` : ''}
-          </div>
-          <span class="sighting-meta">${s.class || ''}</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
-  container.appendChild(block);
-}
-
-// ─── Page init ───────────────────────────────────────────────────────
 export async function initPage(location) {
-  currentLocation = location;
+  currentLocation = location.toLowerCase();
   const app = document.getElementById('app');
   app.innerHTML = '<div class="loading-state">Loading species...</div>';
 
   try {
-    const [species, sightings] = await Promise.all([
-      fetchSpecies(location),
-      fetchSightings(location)
-    ]);
+    const species = await fetchSpecies(location);
 
     app.innerHTML = '';
 
@@ -258,19 +259,12 @@ export async function initPage(location) {
 
     classes.forEach(cls => {
       const list = species.filter(s => s.class === cls);
-      if (cls === 'bird' || list.length > 0) {
-        renderSection(classLabels[cls], list, app, true);
-      } else {
-        // Show empty sections with just the add-sighting button
-        renderSection(classLabels[cls], [], app, true);
-      }
+      renderSection(classLabels[cls], list, app, true);
     });
-
-    renderSightings(sightings, app);
 
   } catch (err) {
     console.error(err);
-    app.innerHTML = `<p class="loading-state">Error loading data. Check your Firebase config.</p>`;
+    app.innerHTML = `<p class="loading-state">Error loading data.</p>`;
   }
 
   setupModals();
@@ -278,13 +272,12 @@ export async function initPage(location) {
   setupNav();
 }
 
-// ─── Upload flow ─────────────────────────────────────────────────────
 function startUpload(docId, speciesName) {
   if (isUnlocked) {
     openUploadModal(docId, speciesName);
     return;
   }
-  // Show password modal first
+
   pendingDocId = docId;
   document.getElementById('modalSpeciesName').textContent = speciesName;
   document.getElementById('passwordInput').value = '';
@@ -305,7 +298,6 @@ function openUploadModal(docId, speciesName) {
   document.getElementById('uploadModal').classList.add('active');
 }
 
-// ─── Sighting modal ───────────────────────────────────────────────────
 function openSightingModal(classLabel) {
   if (!isUnlocked) {
     pendingDocId = '__sighting__';
@@ -323,10 +315,8 @@ function openSightingModal(classLabel) {
   document.getElementById('sightingModal').classList.add('active');
 }
 
-// ─── Modal setup ─────────────────────────────────────────────────────
 function setupModals() {
 
-  // Password modal
   document.getElementById('modalCancel').addEventListener('click', () => {
     document.getElementById('passwordModal').classList.remove('active');
   });
@@ -355,7 +345,6 @@ function setupModals() {
     if (e.key === 'Enter') document.getElementById('modalUnlock').click();
   });
 
-  // Upload modal
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
 
@@ -400,7 +389,6 @@ function setupModals() {
 
       await updateSpeciesImage(pendingDocId, imageUrl, pendingCoords);
 
-      // Update the card in the DOM
       const card = document.querySelector(`.species-card[data-id="${pendingDocId}"]`);
       if (card) {
         const imgWrap = card.querySelector('.card-image-wrap');
@@ -423,7 +411,6 @@ function setupModals() {
     }
   });
 
-  // Sighting modal
   document.getElementById('sightingCancel').addEventListener('click', () => {
     document.getElementById('sightingModal').classList.remove('active');
   });
@@ -455,7 +442,6 @@ function setupModals() {
     }
   });
 
-  // Close modals on overlay click
   ['passwordModal', 'uploadModal', 'sightingModal'].forEach(id => {
     document.getElementById(id).addEventListener('click', (e) => {
       if (e.target.id === id) document.getElementById(id).classList.remove('active');
@@ -463,7 +449,6 @@ function setupModals() {
   });
 }
 
-// ─── File selection with EXIF extraction ─────────────────────────────
 async function handleFileSelected(file) {
   pendingFile = file;
   pendingCoords = null;
@@ -491,7 +476,6 @@ async function handleFileSelected(file) {
   reader.readAsDataURL(file);
 }
 
-// ─── Lightbox ────────────────────────────────────────────────────────
 function setupLightbox() {
   const lb = document.createElement('div');
   lb.className = 'lightbox-overlay';
@@ -513,7 +497,6 @@ function closeLightbox() {
   document.getElementById('lightbox').classList.remove('active');
 }
 
-// ─── Nav drawer ───────────────────────────────────────────────────────
 function setupNav() {
   const hamburger = document.getElementById('hamburger');
   const drawer = document.getElementById('navDrawer');
