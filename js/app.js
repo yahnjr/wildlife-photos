@@ -14,8 +14,8 @@ let pendingSightingLocation = '';
 let isUnlocked = false;
 
 const birdPlates = {
-  'arizona': 'https://i.ibb.co/xKr7n66y/arizonaplate.png',
-  'peru': 'https://i.ibb.co/SDt2jLHj/peru-birds.jpg'
+  'Arizona': 'https://i.ibb.co/xKr7n66y/arizonaplate.png',
+  'Peru': 'https://i.ibb.co/SDt2jLHj/peru-birds.jpg'
 };
 
 function extractExifCoords(file) {
@@ -238,7 +238,7 @@ function renderSection(title, speciesList, container, showAddSighting = true) {
 }
 
 export async function initPage(location) {
-  currentLocation = location.toLowerCase();
+  currentLocation = location;
   const app = document.getElementById('app');
   app.innerHTML = '<div class="loading-state">Loading species...</div>';
 
@@ -433,7 +433,6 @@ function setupModals() {
         location: currentLocation
       });
       document.getElementById('sightingModal').classList.remove('active');
-      // Refresh sightings display — simple reload
       window.location.reload();
     } catch (err) {
       console.error(err);
