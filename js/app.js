@@ -1,5 +1,7 @@
 import {
   fetchSpecies,
+  fetchLocation,
+  fetchLocations,
   updateSpeciesImage,
   addSighting,
   IMGBB_API_KEY,
@@ -12,11 +14,7 @@ let pendingFile = null;
 let pendingCoords = null;
 let pendingSightingLocation = '';
 let isUnlocked = false;
-
-const birdPlates = {
-  'Arizona': 'https://i.ibb.co/xKr7n66y/arizonaplate.png',
-  'Peru': 'https://i.ibb.co/SDt2jLHj/peru-birds.jpg'
-};
+let locationMeta = null;
 
 function extractExifCoords(file) {
   return new Promise((resolve) => {
@@ -174,25 +172,16 @@ function renderCard(species) {
 function renderSection(title, speciesList, container, showAddSighting = true) {
   const speciesWithPhotos = speciesList.filter(s => s.imageUrl && s.imageUrl.trim() !== "");
   
-  let numberSpecies = speciesWithPhotos.length;
-  var noCamSightings = false;
-  if (numberSpecies === 0 && !showAddSighting) return;
+  const isNoCamBirds = title === 'Birds' 
+    && locationMeta 
+    && locationMeta.birdPlateUrl;
+
+  const numberSpecies = isNoCamBirds
+    ? (locationMeta.birdCount || 0)
+    : speciesWithPhotos.length;
 
   const block = document.createElement('div');
   block.className = 'section-block';
-  
-  if (title === 'Birds')
-  {
-    if (currentLocation === 'arizona') {
-      noCamSightings = true;
-      numberSpecies = 94;
-    } else if (currentLocation === 'peru') {
-      noCamSightings = true;
-      numberSpecies = 26;
-    } else {
-      noCamSightings = false;
-    }
-  }
 
   block.innerHTML = `
     <div class="section-header">
@@ -201,16 +190,16 @@ function renderSection(title, speciesList, container, showAddSighting = true) {
     </div>
   `;
 
-  if (noCamSightings) {
+  if (isNoCamBirds) {
     const heroImg = document.createElement('div');
     heroImg.className = 'special-hero-wrap';
     heroImg.innerHTML = `
-      <img src="${birdPlates[currentLocation]}" class="hero-image" style="width:100%; border-radius:8px; margin-bottom:1rem; cursor:zoom-in;">
+      <img src="${locationMeta.birdPlateUrl}" class="hero-image" style="width:100%; border-radius:8px; margin-bottom:1rem; cursor:zoom-in;">
       <p class="hero-note" style="font-style:italic; color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
         Note: I didn't have a bird-capable camera during this trip; this compilation represents birds sighted.
       </p>
     `;
-    heroImg.querySelector('img').addEventListener('click', () => openLightbox(birdPlates[currentLocation]));
+    heroImg.querySelector('img').addEventListener('click', () => openLightbox(locationMeta.birdPlateUrl));
     block.appendChild(heroImg);
     showAddSighting = false;
   } 
@@ -239,11 +228,16 @@ function renderSection(title, speciesList, container, showAddSighting = true) {
 
 export async function initPage(location) {
   currentLocation = location;
+  if (localStorage.getItem('wildlife_pw_unlocked') === '1') isUnlocked = true;
   const app = document.getElementById('app');
   app.innerHTML = '<div class="loading-state">Loading species...</div>';
 
   try {
-    const species = await fetchSpecies(location);
+    const [species, locData] = await Promise.all([
+      fetchSpecies(location),
+      fetchLocation(location)
+    ]);
+    locationMeta = locData;
 
     app.innerHTML = '';
 
@@ -325,15 +319,17 @@ function setupModals() {
     const pw = document.getElementById('passwordInput').value;
     if (pw === UPLOAD_PASSWORD) {
       isUnlocked = true;
+      localStorage.setItem('wildlife_pw_unlocked', '1');  // ← save it
       document.getElementById('passwordModal').classList.remove('active');
       if (pendingDocId === '__sighting__') {
         document.getElementById('sightingCommon').value = '';
         document.getElementById('sightingScientific').value = '';
         document.getElementById('sightingNotes').value = '';
         document.getElementById('sightingModal').classList.add('active');
+        if (pendingSightingClass) {
+          document.getElementById('sightingClass').value = pendingSightingClass;
+        }
       } else {
-        const nameEl = document.getElementById('uploadSpeciesName');
-        nameEl.textContent = document.getElementById('modalSpeciesName').textContent;
         openUploadModal(pendingDocId, document.getElementById('modalSpeciesName').textContent);
       }
     } else {
@@ -403,6 +399,14 @@ function setupModals() {
       }
 
       document.getElementById('uploadModal').classList.remove('active');
+      cancelBtn.disabled = false;
+      submitBtn.disabled = false;
+      pendingFile = null;
+      document.querySelector('.drop-inner').innerHTML = `
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Click or drag a photo here</p>
+        <span id="coordsNote" class="coords-note"></span>
+        `;
     } catch (err) {
       console.error(err);
       document.getElementById('progressLabel').textContent = 'Upload failed. Try again.';
@@ -496,7 +500,7 @@ function closeLightbox() {
   document.getElementById('lightbox').classList.remove('active');
 }
 
-function setupNav() {
+async function setupNav() {
   const hamburger = document.getElementById('hamburger');
   const drawer = document.getElementById('navDrawer');
   const overlay = document.getElementById('navOverlay');
@@ -512,4 +516,28 @@ function setupNav() {
     hamburger.classList.remove('open');
     overlay.classList.remove('active');
   });
+
+  try {
+    const locations = await fetchLocations();
+    const navInner = document.querySelector('.nav-inner');
+    navInner.innerHTML = '<p class="nav-label">Locations</p>';
+
+    const currentSlug = window.location.pathname
+      .split('/').pop()
+      .replace('.html', '') || 'oregon';
+
+    locations.forEach(loc => {
+      const a = document.createElement('a');
+      const href = `${loc.slug}.html`;
+      a.href = href;
+      a.className = 'nav-link' + (loc.noCam ? ' nav-link--nocam' : '');
+      if (currentSlug === loc.slug || (currentSlug === 'index' && loc.slug === 'oregon')) {
+        a.classList.add('active');
+      }
+      a.textContent = loc.name;
+      navInner.appendChild(a);
+    });
+  } catch (err) {
+    console.error('Nav load failed:', err);
+  }
 }

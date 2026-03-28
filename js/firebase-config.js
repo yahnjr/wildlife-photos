@@ -8,7 +8,8 @@ import {
   doc,
   updateDoc,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -35,6 +36,19 @@ export async function fetchSpecies(location) {
   );
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function fetchLocations() {
+  const q = query(collection(db, 'locations'), orderBy('order'));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function fetchLocation(name) {
+  const q = query(collection(db, 'locations'), where('name', '==', name));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return { id: snap.docs[0].id, ...snap.docs[0].data() };
 }
 
 export async function updateSpeciesImage(docId, imageUrl, coordinates) {
