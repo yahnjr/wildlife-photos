@@ -218,3 +218,128 @@ html, body {
   flex-shrink: 0;
   box-shadow: 0 0 5px currentColor;
 }
+
+.coord-panel {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 30;
+  width: 280px;
+  max-height: calc(100vh - 3rem);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 0.2s;
+}
+ 
+.coord-panel--hidden { display: none; }
+ 
+.coord-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
+ 
+.coord-panel__title {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+ 
+.coord-panel__toggle {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 2px;
+  display: flex; align-items: center;
+  transition: color 0.15s;
+}
+.coord-panel__toggle:hover { color: #fff; }
+ 
+.coord-panel__body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0.75rem 0;
+}
+ 
+.coord-panel__hint {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  padding: 0 1rem 0.5rem;
+  line-height: 1.5;
+}
+ 
+.coord-species-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+ 
+.coord-species-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 2px solid transparent;
+}
+.coord-species-item:hover { background: rgba(255,255,255,0.05); }
+.coord-species-item--active {
+  border-left-color: var(--amber);
+  background: rgba(200,133,58,0.1);
+}
+ 
+.coord-species-thumb {
+  width: 36px; height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.07);
+}
+ 
+.coord-species-thumb--placeholder {
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 1rem;
+}
+ 
+.coord-species-info { min-width: 0; }
+ 
+.coord-species-name {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+ 
+.coord-species-loc {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+ 
+.coord-status {
+  margin: 0.75rem 1rem 0;
+  font-size: 0.72rem;
+  color: var(--moss-light);
+  min-height: 1.2em;
+  line-height: 1.5;
+}
+ 
+body.coord-assign-mode #map { cursor: crosshair !important; }

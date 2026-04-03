@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
-
    <header class="site-header">
     <div class="header-inner">
       <div class="header-title">
@@ -31,6 +30,20 @@
     </div>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
+
+  <aside id="coordPanel" class="coord-panel coord-panel--hidden">
+    <div class="coord-panel__header">
+      <span class="coord-panel__title">Assign Coordinates</span>
+      <button id="coordPanelToggle" class="coord-panel__toggle" title="Show/hide panel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <div class="coord-panel__body" id="coordPanelBody">
+      <p class="coord-panel__hint">Click a species, then click the map to place it.</p>
+      <div id="coordSpeciesList" class="coord-species-list"></div>
+      <div id="coordStatus" class="coord-status"></div>
+    </div>
+  </aside>
 
   <div id="map"></div>
 
