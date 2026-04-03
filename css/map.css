@@ -153,159 +153,68 @@ html, body {
 }
 .sighting-popup__link:hover { color: #8fbf90; }
 
-.wildlife-marker {
-  width: 10px; height: 10px;
+.map-dot {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: var(--amber);
-  border: 2px solid rgba(255,255,255,0.8);
-  box-shadow: 0 0 0 0 rgba(200, 133, 58, 0.5);
+  background: var(--dot-color, #888);
+  border: 2px solid rgba(255,255,255,0.85);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
   cursor: pointer;
   transition: transform 0.15s;
-  animation: markerPulse 2.5s ease-out infinite;
 }
-.wildlife-marker:hover { transform: scale(1.5); }
-.wildlife-marker--active {
-  background: #fff;
-  border-color: var(--amber);
-  transform: scale(1.6);
-  animation: none;
-}
+.map-dot:hover { transform: scale(1.4); }
 
-@keyframes markerPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(200,133,58,0.5); }
-  70%  { box-shadow: 0 0 0 7px rgba(200,133,58,0); }
-  100% { box-shadow: 0 0 0 0 rgba(200,133,58,0); }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   TEMPORARY: COORDINATE ASSIGNMENT TOOL STYLES
-   Remove this entire section when done assigning coords
-════════════════════════════════════════════════════════════ */
-
-.coord-panel {
+.map-legend {
   position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 30;
-  width: 280px;
-  max-height: calc(100vh - 3rem);
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  bottom: 2rem;
+  left: 1.25rem;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  transition: opacity 0.2s;
+  gap: 0.15rem;
+  background: rgba(18, 18, 24, 0.82);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.07);
+  z-index: 10;
+  min-width: 130px;
 }
 
-.coord-panel--hidden { display: none; }
-
-.coord-panel__header {
+.legend-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--panel-border);
-  flex-shrink: 0;
-}
-
-.coord-panel__title {
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--amber);
-}
-
-.coord-panel__toggle {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
-  padding: 2px;
-  display: flex; align-items: center;
-  transition: color 0.15s;
-}
-.coord-panel__toggle:hover { color: #fff; }
-
-.coord-panel__body {
-  overflow-y: auto;
-  flex: 1;
-  padding: 0.75rem 0;
-}
-
-.coord-panel__hint {
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.4);
-  padding: 0 1rem 0.5rem;
-  line-height: 1.5;
-}
-
-.coord-species-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.coord-species-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: background 0.12s;
-  border-left: 2px solid transparent;
-}
-.coord-species-item:hover { background: rgba(255,255,255,0.05); }
-.coord-species-item--active {
-  border-left-color: var(--amber);
-  background: rgba(200,133,58,0.1);
-}
-
-.coord-species-thumb {
-  width: 36px; height: 36px;
+  gap: 0.55rem;
+  padding: 0.3rem 0.4rem;
   border-radius: 4px;
-  object-fit: cover;
-  flex-shrink: 0;
-  background: rgba(255,255,255,0.07);
-}
-
-.coord-species-thumb--placeholder {
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(255,255,255,0.2);
-  font-size: 1rem;
-}
-
-.coord-species-info { min-width: 0; }
-
-.coord-species-name {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
   font-size: 0.8rem;
   color: rgba(255,255,255,0.85);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  transition: opacity 0.15s, background 0.15s;
+  text-align: left;
+  width: 100%;
 }
 
-.coord-species-loc {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.35);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.legend-item:hover {
+  background: rgba(255,255,255,0.06);
 }
 
-.coord-status {
-  margin: 0.75rem 1rem 0;
-  font-size: 0.72rem;
-  color: var(--moss-light);
-  min-height: 1.2em;
-  line-height: 1.5;
+.legend-item:not(.legend-item--active) {
+  opacity: 0.28;
 }
 
-/* ── Coord assign mode cursor ─────────────────────────────── */
-body.coord-assign-mode #map { cursor: crosshair !important; }
+.legend-item--active {
+  opacity: 1;
+}
 
-/* END TEMPORARY COORDINATE ASSIGNMENT TOOL STYLES */
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 5px currentColor;
+}
