@@ -645,5 +645,29 @@ body {
   line-height: 1;
 }
 
-/* ─── Utilities ─────────────────────────────────────────────────── */
+.auth-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border, rgba(0,0,0,0.12));
+  background: var(--surface, #fff);
+  color: var(--text-secondary, #666);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transition: opacity 0.2s, transform 0.2s, color 0.2s;
+  opacity: 0.55;
+}
+.auth-fab:hover {
+  opacity: 1;
+  transform: scale(1.08);
+  color: var(--text-primary, #111);
+}
+
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }

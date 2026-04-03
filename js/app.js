@@ -150,6 +150,7 @@ function renderCard(species) {
     img.style.cursor = 'zoom-in';
     imgWrap.appendChild(img);
   } else {
+    card.classList.add('card--no-photo');  // ← add marker class
     const btn = document.createElement('button');
     btn.className = 'card-upload-btn';
     btn.innerHTML = `${uploadIcon()}<span>Add photo</span>`;
@@ -220,6 +221,7 @@ function renderSection(title, speciesList, container, showAddSighting = true) {
     btn.textContent = `+ Add ${title} sighting`;
     btn.addEventListener('click', () => openSightingModal(title));
     row.appendChild(btn);
+    row.classList.add('add-sighting-row--gated');
     block.appendChild(row);
   }
 
@@ -264,6 +266,8 @@ export async function initPage(location) {
   setupModals();
   setupLightbox();
   setupNav();
+  setupAuthFab();
+  applyAuthVisibility();
 }
 
 function startUpload(docId, speciesName) {
@@ -319,23 +323,23 @@ function setupModals() {
     const pw = document.getElementById('passwordInput').value;
     if (pw === UPLOAD_PASSWORD) {
       isUnlocked = true;
-      localStorage.setItem('wildlife_pw_unlocked', '1');  // ← save it
+      localStorage.setItem('wildlife_pw_unlocked', '1');
+      applyAuthVisibility();
       document.getElementById('passwordModal').classList.remove('active');
-      if (pendingDocId === '__sighting__') {
+
+      if (pendingDocId === '__fab__') {
+      } else if (pendingDocId === '__sighting__') {
         document.getElementById('sightingCommon').value = '';
         document.getElementById('sightingScientific').value = '';
         document.getElementById('sightingNotes').value = '';
         document.getElementById('sightingModal').classList.add('active');
-        if (pendingSightingClass) {
-          document.getElementById('sightingClass').value = pendingSightingClass;
-        }
       } else {
         openUploadModal(pendingDocId, document.getElementById('modalSpeciesName').textContent);
       }
     } else {
       document.getElementById('passwordError').textContent = 'Incorrect password.';
     }
-  });
+});
 
   document.getElementById('passwordInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('modalUnlock').click();
@@ -498,6 +502,55 @@ function openLightbox(src) {
 
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('active');
+}
+
+function applyAuthVisibility() {
+  document.querySelectorAll('.card--no-photo').forEach(card => {
+    card.style.display = isUnlocked ? '' : 'none';
+  });
+  document.querySelectorAll('.add-sighting-row--gated').forEach(row => {
+    row.style.display = isUnlocked ? '' : 'none';
+  });
+  const fab = document.getElementById('authFab');
+  if (fab) fab.innerHTML = isUnlocked ? lockOpenIcon() : lockIcon();
+}
+
+function lockIcon() {
+  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+}
+
+function lockOpenIcon() {
+  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
+}
+
+function setupAuthFab() {
+  const fab = document.createElement('button');
+  fab.id = 'authFab';
+  fab.className = 'auth-fab';
+  fab.title = 'Edit mode';
+  fab.innerHTML = isUnlocked ? lockOpenIcon() : lockIcon();
+  document.body.appendChild(fab);
+
+  fab.addEventListener('click', () => {
+    if (isUnlocked) {
+      isUnlocked = false;
+      localStorage.removeItem('wildlife_pw_unlocked');
+      applyAuthVisibility();
+      return;
+    }
+
+    if (localStorage.getItem('wildlife_pw_unlocked') === '1') {
+      isUnlocked = true;
+      applyAuthVisibility();
+      return;
+    }
+
+    pendingDocId = '__fab__';
+    document.getElementById('modalSpeciesName').textContent = 'Enter password to edit';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passwordError').textContent = '';
+    document.getElementById('passwordModal').classList.add('active');
+  });
 }
 
 async function setupNav() {
