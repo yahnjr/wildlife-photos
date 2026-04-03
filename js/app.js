@@ -89,8 +89,8 @@ function parseExifGPS(view, start, length) {
       }
     }
 
-    const lat = gps[2] !== undefined ? (gps[1] === 'S' ? -gps[2] : gps[2]) : null;
-    const lng = gps[4] !== undefined ? (gps[3] === 'W' ? -gps[4] : gps[4]) : null;
+    const lat = gps[2] !== undefined ? (gps[1] === 'S' ? -Math.abs(gps[2]) : Math.abs(gps[2])) : null;
+    const lng = gps[4] !== undefined ? (gps[3] === 'W' ? -Math.abs(gps[4]) : Math.abs(gps[4])) : null;
 
     if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
       return { lat: parseFloat(lat.toFixed(6)), lng: parseFloat(lng.toFixed(6)) };

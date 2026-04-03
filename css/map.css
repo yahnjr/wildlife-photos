@@ -1,0 +1,311 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:        #1a1a18;
+  --parchment:  #f5f0e8;
+  --moss:       #3d5a3e;
+  --moss-light: #5a7d5b;
+  --amber:      #c8853a;
+  --text-dim:   #7a7a72;
+  --panel-bg:   rgba(26, 26, 24, 0.92);
+  --panel-border: rgba(255,255,255,0.08);
+  --radius:     10px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  background: var(--ink);
+}
+
+#map {
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+}
+
+.map-wordmark {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  pointer-events: none;
+}
+
+.map-wordmark__title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+}
+
+.map-wordmark__sub {
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+}
+
+.sighting-popup {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 20;
+  width: 280px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  overflow: hidden;
+  transform: translateY(0);
+  opacity: 1;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.sighting-popup--hidden {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+.sighting-popup__close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  background: rgba(0,0,0,0.4);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.65rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.sighting-popup__close:hover { background: rgba(0,0,0,0.7); color: #fff; }
+
+.sighting-popup__img-wrap {
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+}
+
+.sighting-popup__img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sighting-popup__img-wrap:empty,
+.sighting-popup__img-wrap--no-img {
+  display: none;
+}
+
+.sighting-popup__body {
+  padding: 0.9rem 1rem 1rem;
+}
+
+.sighting-popup__class {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.3rem;
+}
+
+.sighting-popup__name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.sighting-popup__sci {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.45);
+  margin-top: 0.15rem;
+  margin-bottom: 0.75rem;
+}
+
+.sighting-popup__link {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--moss-light);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color 0.15s;
+}
+.sighting-popup__link:hover { color: #8fbf90; }
+
+.wildlife-marker {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid rgba(255,255,255,0.8);
+  box-shadow: 0 0 0 0 rgba(200, 133, 58, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s;
+  animation: markerPulse 2.5s ease-out infinite;
+}
+.wildlife-marker:hover { transform: scale(1.5); }
+.wildlife-marker--active {
+  background: #fff;
+  border-color: var(--amber);
+  transform: scale(1.6);
+  animation: none;
+}
+
+@keyframes markerPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(200,133,58,0.5); }
+  70%  { box-shadow: 0 0 0 7px rgba(200,133,58,0); }
+  100% { box-shadow: 0 0 0 0 rgba(200,133,58,0); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TEMPORARY: COORDINATE ASSIGNMENT TOOL STYLES
+   Remove this entire section when done assigning coords
+════════════════════════════════════════════════════════════ */
+
+.coord-panel {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 30;
+  width: 280px;
+  max-height: calc(100vh - 3rem);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 0.2s;
+}
+
+.coord-panel--hidden { display: none; }
+
+.coord-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
+
+.coord-panel__title {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.coord-panel__toggle {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 2px;
+  display: flex; align-items: center;
+  transition: color 0.15s;
+}
+.coord-panel__toggle:hover { color: #fff; }
+
+.coord-panel__body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0.75rem 0;
+}
+
+.coord-panel__hint {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  padding: 0 1rem 0.5rem;
+  line-height: 1.5;
+}
+
+.coord-species-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.coord-species-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 2px solid transparent;
+}
+.coord-species-item:hover { background: rgba(255,255,255,0.05); }
+.coord-species-item--active {
+  border-left-color: var(--amber);
+  background: rgba(200,133,58,0.1);
+}
+
+.coord-species-thumb {
+  width: 36px; height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.07);
+}
+
+.coord-species-thumb--placeholder {
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 1rem;
+}
+
+.coord-species-info { min-width: 0; }
+
+.coord-species-name {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coord-species-loc {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coord-status {
+  margin: 0.75rem 1rem 0;
+  font-size: 0.72rem;
+  color: var(--moss-light);
+  min-height: 1.2em;
+  line-height: 1.5;
+}
+
+/* ── Coord assign mode cursor ─────────────────────────────── */
+body.coord-assign-mode #map { cursor: crosshair !important; }
+
+/* END TEMPORARY COORDINATE ASSIGNMENT TOOL STYLES */

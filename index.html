@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wildlife Sightings — Map</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/map.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TEMPORARY: COORDINATE ASSIGNMENT TOOL
+       Remove this entire aside element when done assigning coords
+  ════════════════════════════════════════════════════════════ -->
+  <aside id="coordPanel" class="coord-panel">
+    <div class="coord-panel__header">
+      <span class="coord-panel__title">Assign Coordinates</span>
+      <button id="coordPanelToggle" class="coord-panel__toggle" title="Show/hide panel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <div class="coord-panel__body" id="coordPanelBody">
+      <p class="coord-panel__hint">Click a species, then click the map to place it.</p>
+      <div id="coordSpeciesList" class="coord-species-list"></div>
+      <div id="coordStatus" class="coord-status"></div>
+    </div>
+  </aside>
+  <!-- END TEMPORARY -->
+
+  <div id="map"></div>
+
+  <div id="sightingPopup" class="sighting-popup sighting-popup--hidden">
+    <button class="sighting-popup__close" id="popupClose">✕</button>
+    <div class="sighting-popup__img-wrap">
+      <img id="popupImg" src="" alt="" />
+    </div>
+    <div class="sighting-popup__body">
+      <div class="sighting-popup__class" id="popupClass"></div>
+      <div class="sighting-popup__name" id="popupName"></div>
+      <div class="sighting-popup__sci" id="popupSci"></div>
+      <a class="sighting-popup__link" id="popupLink" href="#">View all at this location →</a>
+    </div>
+  </div>
+
+  <div class="map-wordmark">
+    <span class="map-wordmark__title">Field Notes</span>
+    <span class="map-wordmark__sub">Wildlife Sightings</span>
+  </div>
+
+  <!-- Firebase + app -->
+  <script type="module" src="js/map.js"></script>
+</body>
+</html>
