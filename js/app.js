@@ -12,6 +12,7 @@ import { setupNav } from './nav.js';
 let currentLocation = '';
 let pendingDocId = null;
 let pendingFile = null;
+let pendingSightingLocation = null;
 let pendingCoords = null;
 let isUnlocked = false;
 let locationMeta = null;
