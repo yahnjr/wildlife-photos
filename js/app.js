@@ -150,6 +150,16 @@ function renderCard(species) {
     img.addEventListener('click', () => openLightbox(species.imageUrl));
     img.style.cursor = 'zoom-in';
     imgWrap.appendChild(img);
+
+    const swapBtn = document.createElement('button');
+    swapBtn.className = 'card-swap-btn';
+    swapBtn.title = 'Replace photo';
+    swapBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`;
+    swapBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startUpload(species.id, species.commonName);
+    });
+    imgWrap.appendChild(swapBtn);
   } else {
     card.classList.add('card--no-photo');  // ← add marker class
     const btn = document.createElement('button');
@@ -511,6 +521,9 @@ function applyAuthVisibility() {
   });
   document.querySelectorAll('.add-sighting-row--gated').forEach(row => {
     row.style.display = isUnlocked ? '' : 'none';
+  });
+  document.querySelectorAll('.card-swap-btn').forEach(btn => {
+    btn.style.display = isUnlocked ? '' : 'none';
   });
   const fab = document.getElementById('authFab');
   if (fab) fab.innerHTML = isUnlocked ? lockOpenIcon() : lockIcon();

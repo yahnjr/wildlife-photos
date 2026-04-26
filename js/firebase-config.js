@@ -35,7 +35,9 @@ export async function fetchSpecies(location) {
     where('location', '==', location)
   );
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => a.commonName.localeCompare(b.commonName));
 }
 
 export async function fetchLocations() {

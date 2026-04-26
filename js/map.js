@@ -51,7 +51,7 @@ const activeFilters = new Set(Object.keys(CLASS_COLORS));
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/dark-v11',
-  center: [0, 20],
+  center: [-110, 20],
   zoom: 1.8,
   projection: 'mercator',
   attributionControl: false

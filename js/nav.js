@@ -26,6 +26,24 @@ export async function setupNav() {
       .split('/').pop()
       .replace('.html', '') || 'oregon';
 
+    const a = document.createElement('a');
+    a.href = `../index.html`;
+    a.className = 'nav-link';
+    a.textContent = 'Map';
+    if (currentSlug === 'index') {
+      a.classList.add('active');
+    }
+    navInner.appendChild(a);
+    
+    const b = document.createElement('a');
+    b.href = `../species-search.html`;
+    b.className = 'nav-link';
+    b.textContent = 'Species Search';
+    if (currentSlug === 'species-search') {
+      b.classList.add('active');
+    }
+    navInner.appendChild(b);
+    
     locations.forEach(loc => {
       const a = document.createElement('a');
       a.href = `${loc.slug}.html`;

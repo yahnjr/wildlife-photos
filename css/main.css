@@ -289,6 +289,24 @@ body {
 
 .card-upload-btn:hover svg { opacity: 1; }
 
+.card-swap-btn {
+  display: none; /* hidden by default, shown via applyAuthVisibility */
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  border-radius: 6px;
+  padding: 5px 6px;
+  cursor: pointer;
+  color: white;
+  line-height: 0;
+  backdrop-filter: blur(4px);
+}
+.card-swap-btn:hover {
+  background: rgba(0,0,0,0.8);
+}
+
 .card-body {
   padding: 0.6rem 0.7rem 0.7rem;
   border-top: 1px solid var(--border);
