@@ -27,7 +27,7 @@ export async function setupNav() {
       .replace('.html', '') || 'oregon';
 
     const a = document.createElement('a');
-    a.href = `../index.html`;
+    a.href = `index.html`;
     a.className = 'nav-link';
     a.textContent = 'Map';
     if (currentSlug === 'index') {
@@ -36,9 +36,10 @@ export async function setupNav() {
     navInner.appendChild(a);
     
     const b = document.createElement('a');
-    b.href = `../species-search.html`;
+    b.href = `species-search.html`;
     b.className = 'nav-link';
     b.textContent = 'Species Search';
+    b.target = '_blank';
     if (currentSlug === 'species-search') {
       b.classList.add('active');
     }

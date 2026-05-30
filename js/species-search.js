@@ -4,6 +4,7 @@ require([
   "esri/layers/FeatureLayer",
   "esri/core/reactiveUtils"
 ], function(Map, MapView, FeatureLayer, reactiveUtils) {
+  const { setupNav } = import('./nav.js');
 
   const SERVICE_URL = "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/iNat_PreUC_View/FeatureServer/0";
 
@@ -298,25 +299,13 @@ require([
     stationary => { if (stationary) scheduleUpdate(); }
   );
 
-  view.when(() => scheduleUpdate());
+  view.when(() => {
+    scheduleUpdate();
+    // setupNav();
+  });
 
   // Species filter clear button
   document.getElementById("speciesFilterClear").addEventListener("click", () => {
     applySpeciesFilter(null, null);
-  });
-
-  const hamburger = document.getElementById("hamburger");
-  const drawer    = document.getElementById("navDrawer");
-  const overlay   = document.getElementById("navOverlay");
-
-  hamburger.addEventListener("click", () => {
-    const open = drawer.classList.toggle("open");
-    hamburger.classList.toggle("open", open);
-    overlay.classList.toggle("active", open);
-  });
-  overlay.addEventListener("click", () => {
-    drawer.classList.remove("open");
-    hamburger.classList.remove("open");
-    overlay.classList.remove("active");
   });
 });
