@@ -55,6 +55,12 @@ export async function setupNav() {
       a.textContent = loc.name;
       navInner.appendChild(a);
     });
+
+    const c = document.createElement('a');
+    c.href = `https://www.inaturalist.org/observations?place_id=any&user_id=ian728&verifiable=any`;
+    c.className = 'nav-link';
+    c.textContent = 'iNaturalist Profile';
+    navInner.appendChild(c);
   } catch (err) {
     console.error('Nav load failed:', err);
   }

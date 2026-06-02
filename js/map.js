@@ -1,24 +1,11 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { db } from './firebase-config.js';
 import {
-  getFirestore,
   collection,
   getDocs,
   updateDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { setupNav } from './nav.js';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB0yj1a7-ROuhKKiy0SoFZ_3ZzGucRQKxs",
-  authDomain: "wildlife-photos-675dc.firebaseapp.com",
-  projectId: "wildlife-photos-675dc",
-  storageBucket: "wildlife-photos-675dc.firebasestorage.app",
-  messagingSenderId: "691811821177",
-  appId: "1:691811821177:web:4f12a2039cf2f6880fd6a8",
-  measurementId: "G-59WYS96KK8"
-};
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
 
 const UPLOAD_PASSWORD = 'nostopit';
 let coordToolUnlocked = localStorage.getItem('wildlife_pw_unlocked') === '1';
