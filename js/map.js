@@ -52,7 +52,7 @@ function locationToSlug(locationName) {
 }
 
 function locationToHref(locationName) {
-  return `pages/${locationToSlug(locationName)}.html`;
+  return `${locationToSlug(locationName)}.html`;
 }
 
 const popup      = document.getElementById('sightingPopup');
